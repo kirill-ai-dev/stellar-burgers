@@ -1,5 +1,6 @@
-import type { TOrder } from '@utils-types';
+import type { ReactNode } from 'react';
 
+/** Свойства визуального списка заказов. */
 export type OrdersListUIProps = {
-  orderByDate: TOrder[];
+  children: ReactNode;
 };

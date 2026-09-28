@@ -1,23 +1,24 @@
-import { ProfileMenu } from '@components';
 import { Button, Input } from '@krgaa/react-developer-burger-ui-components';
+import { clsx } from 'clsx';
 
 import type { ProfileUIProps } from './type';
 
 import styles from './profile.module.css';
 
+/** Отображает редактируемую форму профиля и контекстные кнопки действий. */
 export const ProfileUI = ({
   formValue,
   isFormChanged,
+  isLoading,
   updateUserError,
   handleSubmit,
   handleCancel,
   handleInputChange,
+  profileMenu,
 }: ProfileUIProps): React.JSX.Element => (
   <main className={styles.container}>
-    <div className={`mt-30 mr-15 ${styles.menu}`}>
-      <ProfileMenu />
-    </div>
-    <form className={`mt-30 ${styles.form}`} onSubmit={handleSubmit}>
+    <div className={clsx('mt-30 mr-15', styles.menu)}>{profileMenu}</div>
+    <form className={clsx('mt-30', styles.form)} onSubmit={handleSubmit}>
       <>
         <div className="pb-6">
           <Input
@@ -30,6 +31,7 @@ export const ProfileUI = ({
             errorText={''}
             size={'default'}
             icon={'EditIcon'}
+            disabled={isLoading}
           />
         </div>
         <div className="pb-6">
@@ -43,6 +45,7 @@ export const ProfileUI = ({
             errorText={''}
             size={'default'}
             icon={'EditIcon'}
+            disabled={isLoading}
           />
         </div>
         <div className="pb-6">
@@ -56,6 +59,7 @@ export const ProfileUI = ({
             errorText={''}
             size={'default'}
             icon={'EditIcon'}
+            disabled={isLoading}
           />
         </div>
         {isFormChanged && (
@@ -65,16 +69,17 @@ export const ProfileUI = ({
               htmlType="button"
               size="medium"
               onClick={handleCancel}
+              disabled={isLoading}
             >
               Отменить
             </Button>
-            <Button type="primary" size="medium" htmlType="submit">
-              Сохранить
+            <Button type="primary" size="medium" htmlType="submit" disabled={isLoading}>
+              {isLoading ? 'Сохраняем...' : 'Сохранить'}
             </Button>
           </div>
         )}
         {updateUserError && (
-          <p className={`${styles.error} pt-5 text text_type_main-default`}>
+          <p className={clsx(styles.error, 'pt-5 text text_type_main-default')}>
             {updateUserError}
           </p>
         )}

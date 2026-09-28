@@ -1,5 +1,6 @@
 import styles from './modal-overlay.module.css';
 
+/** Затемняет фон и передаёт клик контейнеру модального окна. */
 export const ModalOverlayUI = ({
   onClick,
 }: {

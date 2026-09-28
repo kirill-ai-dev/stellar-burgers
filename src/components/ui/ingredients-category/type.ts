@@ -1,9 +1,9 @@
-import type { TIngredient } from '@utils-types';
+import type { ReactNode } from 'react';
 
+/** Данные визуальной категории ингредиентов и её счётчиков. */
 export type TIngredientsCategoryUIProps = {
   title: string;
   titleRef: React.RefObject<HTMLHeadingElement | null>;
-  ingredients: TIngredient[];
-  ingredientsCounters: Record<string, number>;
+  children: ReactNode;
   ref?: React.Ref<HTMLUListElement>;
-};
+} & Omit<React.HTMLAttributes<HTMLUListElement>, 'title'>;

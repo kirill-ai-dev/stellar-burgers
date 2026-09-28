@@ -32,7 +32,7 @@ export const DefaultElement: Story = {
       _id: '111',
       id: '222',
       name: 'Булка',
-      type: 'top',
+      type: 'main',
       proteins: 12,
       fat: 33,
       carbohydrates: 22,

@@ -13,5 +13,6 @@ export * from './order-details';
 export * from './order-info';
 export * from './order-status';
 export * from './orders-list';
+export * from './page-message';
 export * from './preloader';
 export * from './profile-menu';

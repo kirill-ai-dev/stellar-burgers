@@ -1,68 +1,69 @@
-import { Preloader, OrderInfoUI } from '@ui';
-import { useMemo } from 'react';
+import { selectIngredientsState, selectOrderDetails } from '@selectors';
+import { OrderInfoUI, PageMessage, Preloader } from '@ui';
+import { useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 
-import type { TIngredient } from '@utils-types';
+import { clearOrderDetails, getOrderByNumber } from '@services/slices/orderDetailsSlice';
+import { useDispatch, useSelector } from '@services/store';
+import { createOrderDetailsInfo } from '@utils/order';
 
+import { OrderStatus } from '../order-status';
+
+/** Загружает заказ из URL и подготавливает состав, количества и итоговую стоимость. */
 export const OrderInfo = (): React.JSX.Element => {
-  /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = {
-    createdAt: '',
-    ingredients: [],
-    _id: '',
-    status: '',
-    name: '',
-    updatedAt: 'string',
-    number: 0,
-  };
+  const dispatch = useDispatch();
+  const { number } = useParams();
+  const {
+    ingredients,
+    isLoading: ingredientsLoading,
+    error: ingredientsError,
+  } = useSelector(selectIngredientsState);
+  const { order: orderData, error } = useSelector(selectOrderDetails);
+  const orderNumber = Number(number);
 
-  const ingredients: TIngredient[] = [];
+  useEffect((): (() => void) => {
+    if (Number.isFinite(orderNumber)) {
+      const request = dispatch(getOrderByNumber(orderNumber));
+      return () => {
+        request.abort();
+        dispatch(clearOrderDetails());
+      };
+    }
+    return () => {
+      dispatch(clearOrderDetails());
+    };
+  }, [dispatch, orderNumber]);
 
-  /**
-   * использование useMemo не обязательно
-   */
-  /* Готовим данные для отображения */
+  // Один проход группирует повторяющиеся ингредиенты, второй рассчитывает стоимость.
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
 
-    const date = new Date(orderData.createdAt);
-
-    type TIngredientsWithCount = Record<string, TIngredient & { count: number }>;
-
-    const ingredientsInfo = orderData.ingredients.reduce(
-      (acc: TIngredientsWithCount, item) => {
-        if (!acc[item]) {
-          const ingredient = ingredients.find((ing) => ing._id === item);
-          if (ingredient) {
-            acc[item] = {
-              ...ingredient,
-              count: 1,
-            };
-          }
-        } else {
-          acc[item].count++;
-        }
-
-        return acc;
-      },
-      {}
-    );
-
-    const total = Object.values(ingredientsInfo).reduce(
-      (acc, item) => acc + item.price * item.count,
-      0
-    );
-
-    return {
-      ...orderData,
-      ingredientsInfo,
-      date,
-      total,
-    };
+    return createOrderDetailsInfo(orderData, ingredients);
   }, [orderData, ingredients]);
 
-  if (!orderInfo) {
+  if (!Number.isFinite(orderNumber)) {
+    return <PageMessage text="Некорректный номер заказа" />;
+  }
+  if (error) {
+    return <PageMessage text={error} />;
+  }
+  if (ingredientsError) {
+    return <PageMessage text={ingredientsError} />;
+  }
+  if (!orderData || ingredientsLoading) {
     return <Preloader />;
   }
+  if (!ingredients.length) {
+    return <PageMessage text="Нет данных об ингредиентах заказа" />;
+  }
+  if (!orderInfo) {
+    return <PageMessage text="Не удалось подготовить данные заказа" />;
+  }
 
-  return <OrderInfoUI orderInfo={orderInfo} />;
+  return (
+    <OrderInfoUI
+      orderInfo={orderInfo}
+      status={<OrderStatus status={orderInfo.status} />}
+    />
+  );
 };

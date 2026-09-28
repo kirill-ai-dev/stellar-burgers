@@ -20,10 +20,10 @@ type Story = StoryObj<typeof meta>;
 export const DefaultConstructor: Story = {
   args: {
     constructorItems: { bun: null, ingredients: [] },
-    orderRequest: false,
     price: 0,
-    orderModalData: null,
+    orderError: null,
     onOrderClick: fn(),
-    closeOrderModal: fn(),
+    ingredientElements: null,
+    orderFeedback: null,
   },
 };

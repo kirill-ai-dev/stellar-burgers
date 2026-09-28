@@ -7,6 +7,11 @@
   margin: 0;
 }
 
+.number {
+  margin: 0;
+  text-align: center;
+}
+
 .img_wrap {
   position: relative;
   width: 64px;

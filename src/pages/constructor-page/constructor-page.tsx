@@ -1,15 +1,24 @@
 import { BurgerIngredients, BurgerConstructor } from '@components';
+import { selectIngredientsState } from '@selectors';
+import { PageMessage, Preloader } from '@ui';
+import { ConstructorPageUI } from '@ui-pages';
 
-import styles from './constructor-page.module.css';
+import { useSelector } from '@services/store';
 
-export const ConstructorPage = (): React.JSX.Element => (
-  <main className={styles.containerMain}>
-    <h1 className={`${styles.title} text text_type_main-large mt-10 mb-5 pl-5`}>
-      Соберите бургер
-    </h1>
-    <div className={`${styles.main} pl-5 pr-5`}>
-      <BurgerIngredients />
-      <BurgerConstructor />
-    </div>
-  </main>
-);
+/** Отображает каталог ингредиентов и конструктор после загрузки данных. */
+export const ConstructorPage = (): React.JSX.Element => {
+  const { ingredients, isLoading, error } = useSelector(selectIngredientsState);
+
+  if (isLoading) return <Preloader />;
+  if (error) return <PageMessage text={error} extraClass="mt-30" />;
+  if (!ingredients.length) {
+    return <PageMessage text="Нет ингредиентов" extraClass="mt-30" />;
+  }
+
+  return (
+    <ConstructorPageUI
+      burgerIngredients={<BurgerIngredients />}
+      burgerConstructor={<BurgerConstructor />}
+    />
+  );
+};

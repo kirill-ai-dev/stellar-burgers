@@ -6,23 +6,32 @@ import type { TModalUIProps } from './type';
 
 import styles from './modal.module.css';
 
+/** Отображает визуальную оболочку модального окна с опциональным закрытием. */
 export const ModalUI = memo(function ModalUI({
   title,
   onClose,
   children,
+  canClose = true,
 }: TModalUIProps): React.JSX.Element {
+  /** Закрывает окно кликом по оверлею, если закрытие разрешено. */
+  const handleOverlayClick = (): void => {
+    if (canClose) onClose();
+  };
+
   return (
     <>
       <div className={styles.modal}>
         <div className={styles.header}>
           <h3 className="text text_type_main-large">{title}</h3>
-          <button className={styles.button} type="button" aria-label="Закрыть">
-            <CloseIcon type="primary" onClick={onClose} />
-          </button>
+          {canClose && (
+            <button className={styles.button} type="button" aria-label="Закрыть">
+              <CloseIcon type="primary" onClick={onClose} />
+            </button>
+          )}
         </div>
         <div className={styles.content}>{children}</div>
       </div>
-      <ModalOverlayUI onClick={onClose} />
+      <ModalOverlayUI onClick={handleOverlayClick} />
     </>
   );
 });

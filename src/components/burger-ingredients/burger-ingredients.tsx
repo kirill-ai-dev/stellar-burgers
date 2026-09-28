@@ -1,16 +1,23 @@
+import { selectConstructor, selectIngredients } from '@selectors';
 import { BurgerIngredientsUI } from '@ui';
 import { useMemo, useState, useRef, useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 
+import { useSelector } from '@services/store';
+import { getIngredientCounters } from '@utils/constructor';
+
+import { IngredientsCategory } from '../ingredients-category';
+
 import type { TIngredient, TTabMode } from '@utils-types';
 
+/** Группирует ингредиенты по категориям и синхронизирует активную вкладку со скроллом. */
 export const BurgerIngredients = (): React.JSX.Element => {
   const [currentTab, setCurrentTab] = useState<TTabMode>('bun');
   const titleBunRef = useRef<HTMLHeadingElement>(null);
   const titleMainRef = useRef<HTMLHeadingElement>(null);
   const titleSaucesRef = useRef<HTMLHeadingElement>(null);
-  // TODO: Взять ингредиенты из стора
-  const ingredients: TIngredient[] = [];
+  const ingredients = useSelector(selectIngredients);
+  const burgerConstructor = useSelector(selectConstructor);
 
   const [bunsRef, inViewBuns] = useInView({
     threshold: 0,
@@ -34,6 +41,7 @@ export const BurgerIngredients = (): React.JSX.Element => {
     }
   }, [inViewBuns, inViewFilling, inViewSauces]);
 
+  /** Прокручивает список к категории, выбранной пользователем. */
   const onTabClick = (tab: string): void => {
     setCurrentTab(tab as TTabMode);
     if (tab === 'bun') titleBunRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -56,19 +64,37 @@ export const BurgerIngredients = (): React.JSX.Element => {
     [ingredients]
   );
 
+  const ingredientsCounters = useMemo(
+    () => getIngredientCounters(burgerConstructor),
+    [burgerConstructor]
+  );
+
   return (
-    <BurgerIngredientsUI
-      currentTab={currentTab}
-      buns={buns}
-      mains={mains}
-      sauces={sauces}
-      titleBunRef={titleBunRef}
-      titleMainRef={titleMainRef}
-      titleSaucesRef={titleSaucesRef}
-      bunsRef={bunsRef}
-      mainsRef={mainsRef}
-      saucesRef={saucesRef}
-      onTabClick={onTabClick}
-    />
+    <BurgerIngredientsUI currentTab={currentTab} onTabClick={onTabClick}>
+      <IngredientsCategory
+        title="Булки"
+        titleRef={titleBunRef}
+        ingredients={buns}
+        ingredientsCounters={ingredientsCounters}
+        ref={bunsRef}
+        data-testid="bun-ingredients"
+      />
+      <IngredientsCategory
+        title="Начинки"
+        titleRef={titleMainRef}
+        ingredients={mains}
+        ingredientsCounters={ingredientsCounters}
+        ref={mainsRef}
+        data-testid="mains-ingredients"
+      />
+      <IngredientsCategory
+        title="Соусы"
+        titleRef={titleSaucesRef}
+        ingredients={sauces}
+        ingredientsCounters={ingredientsCounters}
+        ref={saucesRef}
+        data-testid="sauces-ingredients"
+      />
+    </BurgerIngredientsUI>
   );
 };

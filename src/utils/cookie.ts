@@ -1,9 +1,12 @@
+/**
+ * Возвращает декодированное значение cookie по имени.
+ *
+ * @param name - Имя cookie.
+ * @returns Значение cookie или `undefined`, если cookie отсутствует.
+ */
 export function getCookie(name: string): string | undefined {
   const matches = new RegExp(
-    '(?:^|; )' +
-      // eslint-disable-next-line no-useless-escape
-      name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') +
-      '=([^;]*)'
+    '(?:^|; )' + name.replace(/[.$?*|{}()[\]\\/+^]/g, '\\$&') + '=([^;]*)'
   ).exec(document.cookie);
   return matches ? decodeURIComponent(matches[1]) : undefined;
 }
@@ -12,6 +15,13 @@ export function getCookie(name: string): string | undefined {
  там не задается path и возможна ситуация, когда на разных страницах в cookies
  будут разные токены, поэтому в path нужно задавать корень сайта path: '/' */
 
+/**
+ * Сохраняет cookie с общим для всего приложения путём `/`.
+ *
+ * @param name - Имя cookie.
+ * @param value - Значение cookie.
+ * @param props - Дополнительные атрибуты cookie.
+ */
 export function setCookie(
   name: string,
   value: string,
@@ -44,6 +54,11 @@ export function setCookie(
   document.cookie = updatedCookie;
 }
 
+/**
+ * Удаляет cookie, устанавливая истёкший срок хранения.
+ *
+ * @param name - Имя удаляемой cookie.
+ */
 export function deleteCookie(name: string): void {
   setCookie(name, '', { expires: -1 });
 }

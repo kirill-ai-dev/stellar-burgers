@@ -1,4 +1,3 @@
-import { IngredientsCategory } from '@components';
 import { Tab } from '@krgaa/react-developer-burger-ui-components';
 import { memo } from 'react';
 
@@ -6,17 +5,10 @@ import type { BurgerIngredientsUIProps } from './type';
 
 import styles from './burger-ingredients.module.css';
 
+/** Отображает вкладки и прокручиваемые категории каталога ингредиентов. */
 export const BurgerIngredientsUI = memo(function BurgerIngredientsUI({
   currentTab,
-  buns,
-  mains,
-  sauces,
-  titleBunRef,
-  titleMainRef,
-  titleSaucesRef,
-  bunsRef,
-  mainsRef,
-  saucesRef,
+  children,
   onTabClick,
 }: BurgerIngredientsUIProps): React.JSX.Element {
   return (
@@ -36,27 +28,7 @@ export const BurgerIngredientsUI = memo(function BurgerIngredientsUI({
           </ul>
         </nav>
         <div className={styles.content} data-testid="ingredients-content">
-          <IngredientsCategory
-            title="Булки"
-            titleRef={titleBunRef}
-            ingredients={buns}
-            ref={bunsRef}
-            data-testid="bun-ingredients"
-          />
-          <IngredientsCategory
-            title="Начинки"
-            titleRef={titleMainRef}
-            ingredients={mains}
-            ref={mainsRef}
-            data-testid="mains-ingredients"
-          />
-          <IngredientsCategory
-            title="Соусы"
-            titleRef={titleSaucesRef}
-            ingredients={sauces}
-            ref={saucesRef}
-            data-testid="sauces-ingredients"
-          />
+          {children}
         </div>
       </section>
     </>
