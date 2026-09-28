@@ -1,4 +1,9 @@
-import { selectIngredientsState, selectOrderDetails } from '@selectors';
+import {
+  selectFeed,
+  selectIngredientsState,
+  selectOrderDetails,
+  selectProfileOrders,
+} from '@selectors';
 import { OrderInfoUI, PageMessage, Preloader } from '@ui';
 import { useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
@@ -18,11 +23,17 @@ export const OrderInfo = (): React.JSX.Element => {
     isLoading: ingredientsLoading,
     error: ingredientsError,
   } = useSelector(selectIngredientsState);
-  const { order: orderData, error } = useSelector(selectOrderDetails);
+  const { orders: feedOrders } = useSelector(selectFeed);
+  const { orders: profileOrders } = useSelector(selectProfileOrders);
+  const { order: requestedOrder, error } = useSelector(selectOrderDetails);
   const orderNumber = Number(number);
+  const cachedOrder =
+    feedOrders.find((order) => order.number === orderNumber) ??
+    profileOrders.find((order) => order.number === orderNumber);
+  const orderData = cachedOrder ?? requestedOrder;
 
   useEffect((): (() => void) => {
-    if (Number.isFinite(orderNumber)) {
+    if (Number.isFinite(orderNumber) && !cachedOrder) {
       const request = dispatch(getOrderByNumber(orderNumber));
       return () => {
         request.abort();
@@ -32,7 +43,7 @@ export const OrderInfo = (): React.JSX.Element => {
     return () => {
       dispatch(clearOrderDetails());
     };
-  }, [dispatch, orderNumber]);
+  }, [cachedOrder, dispatch, orderNumber]);
 
   // Один проход группирует повторяющиеся ингредиенты, второй рассчитывает стоимость.
   const orderInfo = useMemo(() => {
@@ -44,7 +55,7 @@ export const OrderInfo = (): React.JSX.Element => {
   if (!Number.isFinite(orderNumber)) {
     return <PageMessage text="Некорректный номер заказа" />;
   }
-  if (error) {
+  if (!cachedOrder && error) {
     return <PageMessage text={error} />;
   }
   if (ingredientsError) {

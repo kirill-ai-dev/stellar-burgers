@@ -16,6 +16,7 @@ export const RegisterUI = ({
   setEmail,
   handleSubmit,
   password,
+  redirectState,
   setPassword,
   userName,
   setUserName,
@@ -30,7 +31,7 @@ export const RegisterUI = ({
     footer={
       <div className={clsx(styles.question, 'text text_type_main-default pb-6')}>
         Уже зарегистрированы?
-        <Link to="/login" className={clsx('pl-2', styles.link)}>
+        <Link to="/login" state={redirectState} className={clsx('pl-2', styles.link)}>
           Войти
         </Link>
       </div>

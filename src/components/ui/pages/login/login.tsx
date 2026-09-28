@@ -16,6 +16,7 @@ export const LoginUI = ({
   isLoading,
   handleSubmit,
   password,
+  redirectState,
   setPassword,
 }: LoginUIProps): React.JSX.Element => (
   <AuthForm
@@ -29,7 +30,11 @@ export const LoginUI = ({
       <>
         <div className={clsx('pb-4 text text_type_main-default', styles.question)}>
           Вы - новый пользователь?
-          <Link to="/register" className={clsx('pl-2', styles.link)}>
+          <Link
+            to="/register"
+            state={redirectState}
+            className={clsx('pl-2', styles.link)}
+          >
             Зарегистрироваться
           </Link>
         </div>

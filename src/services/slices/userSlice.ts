@@ -2,6 +2,7 @@ import {
   getUserApi,
   loginUserApi,
   logoutApi,
+  refreshToken,
   registerUserApi,
   updateUserApi,
   type TLoginData,
@@ -57,9 +58,17 @@ export const loginUser = createAsyncThunk('user/login', async (data: TLoginData)
 
 /** Проверяет локальную сессию и при наличии токена загружает профиль. */
 export const checkUserAuth = createAsyncThunk('user/checkAuth', async () => {
-  if (!getCookie('accessToken')) {
+  const accessToken = getCookie('accessToken');
+  const storedRefreshToken = localStorage.getItem('refreshToken');
+
+  if (!accessToken && !storedRefreshToken) {
     throw new Error('Пользователь не авторизован');
   }
+
+  if (!accessToken) {
+    await refreshToken();
+  }
+
   const response = await getUserApi();
   return response.user;
 });

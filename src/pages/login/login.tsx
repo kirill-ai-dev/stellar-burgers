@@ -1,35 +1,30 @@
 import { selectUserState } from '@selectors';
 import { LoginUI } from '@ui-pages';
 import { type SyntheticEvent, useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 import { clearAuthError, loginUser } from '@services/slices/userSlice';
 import { useDispatch, useSelector } from '@services/store';
 
-/** Авторизует пользователя и возвращает его на ранее запрошенный маршрут. */
+import type { TAuthRedirectState } from '@ui-pages/common-type';
+
+/** Авторизует пользователя по данным формы. */
 export const Login = (): React.JSX.Element => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const location = useLocation();
+  const redirectState = location.state as TAuthRedirectState;
   const { authError, isLoading } = useSelector(selectUserState);
 
   useEffect(() => {
     dispatch(clearAuthError());
   }, [dispatch]);
 
-  /** Отправляет форму входа и выполняет перенаправление после успеха. */
+  /** Отправляет форму входа в API. */
   const handleSubmit = (e: SyntheticEvent): void => {
     e.preventDefault();
-    void dispatch(loginUser({ email, password }))
-      .unwrap()
-      .then(() => {
-        const destination =
-          (location.state as { from?: Location } | null)?.from?.pathname ?? '/';
-        void navigate(destination, { replace: true });
-      })
-      .catch(() => undefined);
+    void dispatch(loginUser({ email, password }));
   };
 
   return (
@@ -40,6 +35,7 @@ export const Login = (): React.JSX.Element => {
       setEmail={setEmail}
       password={password}
       setPassword={setPassword}
+      redirectState={redirectState}
       handleSubmit={handleSubmit}
     />
   );

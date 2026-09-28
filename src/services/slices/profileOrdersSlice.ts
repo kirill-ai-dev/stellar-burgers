@@ -27,13 +27,7 @@ export const getProfileOrders = createAsyncThunk('profileOrders/getAll', getOrde
 const profileOrdersSlice = createSlice({
   name: 'profileOrders',
   initialState,
-  reducers: {
-    clearProfileOrders: (state) => {
-      state.orders = [];
-      state.error = null;
-      state.currentRequestId = null;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(getProfileOrders.pending, (state, action) => {
@@ -64,6 +58,4 @@ const profileOrdersSlice = createSlice({
   },
 });
 
-/** Очищает приватную историю заказов после выхода пользователя. */
-export const { clearProfileOrders } = profileOrdersSlice.actions;
 export default profileOrdersSlice.reducer;

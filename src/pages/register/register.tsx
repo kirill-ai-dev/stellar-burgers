@@ -1,10 +1,12 @@
 import { selectUserState } from '@selectors';
 import { RegisterUI } from '@ui-pages';
 import { type SyntheticEvent, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 import { clearAuthError, registerUser } from '@services/slices/userSlice';
 import { useDispatch, useSelector } from '@services/store';
+
+import type { TAuthRedirectState } from '@ui-pages/common-type';
 
 /** Регистрирует нового пользователя по данным формы. */
 export const Register = (): React.JSX.Element => {
@@ -12,7 +14,8 @@ export const Register = (): React.JSX.Element => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const location = useLocation();
+  const redirectState = location.state as TAuthRedirectState;
   const { authError, isLoading } = useSelector(selectUserState);
 
   useEffect(() => {
@@ -22,10 +25,7 @@ export const Register = (): React.JSX.Element => {
   /** Отправляет форму регистрации в API. */
   const handleSubmit = (e: SyntheticEvent): void => {
     e.preventDefault();
-    void dispatch(registerUser({ name: userName, email, password }))
-      .unwrap()
-      .then(() => void navigate('/', { replace: true }))
-      .catch(() => undefined);
+    void dispatch(registerUser({ name: userName, email, password }));
   };
 
   return (
@@ -38,6 +38,7 @@ export const Register = (): React.JSX.Element => {
       setEmail={setEmail}
       setPassword={setPassword}
       setUserName={setUserName}
+      redirectState={redirectState}
       handleSubmit={handleSubmit}
     />
   );

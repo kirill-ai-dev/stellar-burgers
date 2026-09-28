@@ -2,7 +2,6 @@ import { selectUserState } from '@selectors';
 import { ProfileMenuUI } from '@ui';
 import { useLocation } from 'react-router-dom';
 
-import { clearProfileOrders } from '@services/slices/profileOrdersSlice';
 import { logoutUser } from '@services/slices/userSlice';
 import { useDispatch, useSelector } from '@services/store';
 
@@ -12,12 +11,9 @@ export const ProfileMenu = (): React.JSX.Element => {
   const dispatch = useDispatch();
   const { logoutError, isLoading } = useSelector(selectUserState);
 
-  /** Завершает сессию и очищает приватную историю заказов. */
+  /** Завершает пользовательскую сессию. */
   const handleLogout = (): void => {
-    void dispatch(logoutUser())
-      .unwrap()
-      .then(() => dispatch(clearProfileOrders()))
-      .catch(() => undefined);
+    void dispatch(logoutUser());
   };
 
   return (
