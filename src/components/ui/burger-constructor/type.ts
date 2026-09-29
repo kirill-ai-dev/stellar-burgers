@@ -1,10 +1,12 @@
-import type { TConstructorState, TOrder } from '@utils-types';
+import type { TConstructorState } from '@utils-types';
+import type { ReactNode } from 'react';
 
+/** Данные и действия визуального конструктора бургера. */
 export type BurgerConstructorUIProps = {
   constructorItems: TConstructorState;
-  orderRequest: boolean;
   price: number;
-  orderModalData: TOrder | null;
+  orderError: string | null;
   onOrderClick: () => void;
-  closeOrderModal: () => void;
+  ingredientElements: ReactNode;
+  orderFeedback: ReactNode;
 };

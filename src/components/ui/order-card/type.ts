@@ -1,23 +1,11 @@
-import type { TIngredient } from '@utils-types';
+import type { TOrderCardInfo } from '@utils/order';
+import type { ReactNode } from 'react';
 import type { Location } from 'react-router-dom';
 
+/** Данные, необходимые визуальной карточке заказа. */
 export type OrderCardUIProps = {
-  orderInfo: TOrderInfo;
+  orderInfo: TOrderCardInfo;
   maxIngredients: number;
   locationState: { background: Location };
-};
-
-type TOrderInfo = {
-  ingredientsInfo: TIngredient[];
-  ingredientsToShow: TIngredient[];
-  remains: number;
-  total: number;
-  date: Date;
-  _id: string;
-  status: string;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-  number: number;
-  ingredients: string[];
+  status?: ReactNode;
 };

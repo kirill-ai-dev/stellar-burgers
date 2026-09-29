@@ -17,6 +17,10 @@
   border: none;
 }
 
+.error {
+  color: #f00;
+}
+
 .button:hover {
   cursor: pointer;
 }

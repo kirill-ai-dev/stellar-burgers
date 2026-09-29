@@ -4,6 +4,12 @@ import type { TIngredient, TOrder, TUser } from './types';
 
 const URL = process.env.BURGER_API_URL;
 
+/**
+ * Разбирает успешный ответ API или отклоняет промис ошибкой сервера.
+ *
+ * @param res - HTTP-ответ сервера.
+ * @returns Десериализованное тело ответа.
+ */
 const checkResponse = <T>(res: Response): Promise<T> =>
   res.ok ? res.json() : res.json().then((err) => Promise.reject(toApiError(err)));
 
@@ -12,9 +18,11 @@ type TServerResponse<T = unknown> = {
 } & T;
 
 /**
- * The API signals failure with a JSON payload rather than an HTTP error, so the
- * payload is wrapped in a real Error before rejecting. The original body is
- * kept in `cause` for debugging.
+ * Преобразует произвольный ответ API в объект `Error`.
+ * Исходное тело сохраняется в `cause`, чтобы не терять данные для диагностики.
+ *
+ * @param payload - Тело ошибочного ответа.
+ * @returns Нормализованная ошибка приложения.
  */
 const toApiError = (payload: unknown): Error => {
   const message =
@@ -33,6 +41,7 @@ type TRefreshResponse = TServerResponse<{
   accessToken: string;
 }>;
 
+/** Обновляет пару токенов и сохраняет её в браузере. */
 export const refreshToken = (): Promise<TRefreshResponse> =>
   fetch(`${URL}/auth/token`, {
     method: 'POST',
@@ -53,8 +62,14 @@ export const refreshToken = (): Promise<TRefreshResponse> =>
       return refreshData;
     });
 
-/* Это предпочтительны способ обновления токена, но допустимы и другие, главное,
-что бы обновление токена работало корректно */
+/**
+ * Выполняет авторизованный запрос и один раз повторяет его после обновления токена.
+ *
+ * @param url - Адрес ресурса API.
+ * @param options - Параметры запроса, включая заголовок авторизации.
+ * @returns Десериализованный ответ сервера.
+ * @throws {Error} Если запрос или обновление токена завершились ошибкой.
+ */
 export const fetchWithRefresh = async <T>(
   url: RequestInfo,
   options: RequestInit
@@ -87,6 +102,7 @@ type TFeedsResponse = TServerResponse<{
   totalToday: number;
 }>;
 
+/** Загружает полный каталог ингредиентов. */
 export const getIngredientsApi = (): Promise<TIngredient[]> =>
   fetch(`${URL}/ingredients`)
     .then((res) => checkResponse<TIngredientsResponse>(res))
@@ -95,6 +111,7 @@ export const getIngredientsApi = (): Promise<TIngredient[]> =>
       return Promise.reject(toApiError(data));
     });
 
+/** Загружает общую ленту заказов и агрегированную статистику. */
 export const getFeedsApi = (): Promise<TFeedsResponse> =>
   fetch(`${URL}/orders/all`)
     .then((res) => checkResponse<TFeedsResponse>(res))
@@ -103,6 +120,7 @@ export const getFeedsApi = (): Promise<TFeedsResponse> =>
       return Promise.reject(toApiError(data));
     });
 
+/** Загружает историю заказов текущего пользователя. */
 export const getOrdersApi = (): Promise<TOrder[]> =>
   fetchWithRefresh<TFeedsResponse>(`${URL}/orders`, {
     method: 'GET',
@@ -120,6 +138,11 @@ type TNewOrderResponse = TServerResponse<{
   name: string;
 }>;
 
+/**
+ * Создаёт заказ из выбранных ингредиентов.
+ *
+ * @param data - Идентификаторы ингредиентов в порядке сборки бургера.
+ */
 export const orderBurgerApi = (data: string[]): Promise<TNewOrderResponse> =>
   fetchWithRefresh<TNewOrderResponse>(`${URL}/orders`, {
     method: 'POST',
@@ -139,6 +162,11 @@ type TOrderResponse = TServerResponse<{
   orders: TOrder[];
 }>;
 
+/**
+ * Загружает заказ по публичному номеру.
+ *
+ * @param number - Номер заказа.
+ */
 export const getOrderByNumberApi = (number: number): Promise<TOrderResponse> =>
   fetch(`${URL}/orders/${number}`, {
     method: 'GET',
@@ -147,6 +175,7 @@ export const getOrderByNumberApi = (number: number): Promise<TOrderResponse> =>
     },
   }).then((res) => checkResponse<TOrderResponse>(res));
 
+/** Данные формы регистрации и обновления профиля. */
 export type TRegisterData = {
   email: string;
   name: string;
@@ -159,6 +188,7 @@ type TAuthResponse = TServerResponse<{
   user: TUser;
 }>;
 
+/** Регистрирует пользователя и возвращает профиль с токенами. */
 export const registerUserApi = (data: TRegisterData): Promise<TAuthResponse> =>
   fetch(`${URL}/auth/register`, {
     method: 'POST',
@@ -173,11 +203,13 @@ export const registerUserApi = (data: TRegisterData): Promise<TAuthResponse> =>
       return Promise.reject(toApiError(data));
     });
 
+/** Учётные данные формы входа. */
 export type TLoginData = {
   email: string;
   password: string;
 };
 
+/** Авторизует пользователя по электронной почте и паролю. */
 export const loginUserApi = (data: TLoginData): Promise<TAuthResponse> =>
   fetch(`${URL}/auth/login`, {
     method: 'POST',
@@ -192,6 +224,7 @@ export const loginUserApi = (data: TLoginData): Promise<TAuthResponse> =>
       return Promise.reject(toApiError(data));
     });
 
+/** Запрашивает письмо с кодом восстановления пароля. */
 export const forgotPasswordApi = (data: { email: string }): Promise<TServerResponse> =>
   fetch(`${URL}/password-reset`, {
     method: 'POST',
@@ -206,6 +239,7 @@ export const forgotPasswordApi = (data: { email: string }): Promise<TServerRespo
       return Promise.reject(toApiError(data));
     });
 
+/** Устанавливает новый пароль по коду подтверждения. */
 export const resetPasswordApi = (data: {
   password: string;
   token: string;
@@ -225,6 +259,7 @@ export const resetPasswordApi = (data: {
 
 type TUserResponse = TServerResponse<{ user: TUser }>;
 
+/** Возвращает профиль текущего авторизованного пользователя. */
 export const getUserApi = (): Promise<TUserResponse> =>
   fetchWithRefresh<TUserResponse>(`${URL}/auth/user`, {
     headers: {
@@ -232,6 +267,7 @@ export const getUserApi = (): Promise<TUserResponse> =>
     } as HeadersInit,
   });
 
+/** Обновляет переданные поля профиля текущего пользователя. */
 export const updateUserApi = (user: Partial<TRegisterData>): Promise<TUserResponse> =>
   fetchWithRefresh<TUserResponse>(`${URL}/auth/user`, {
     method: 'PATCH',
@@ -242,6 +278,7 @@ export const updateUserApi = (user: Partial<TRegisterData>): Promise<TUserRespon
     body: JSON.stringify(user),
   });
 
+/** Завершает серверную сессию по refresh-токену. */
 export const logoutApi = (): Promise<TServerResponse> =>
   fetch(`${URL}/auth/logout`, {
     method: 'POST',

@@ -1,5 +1,7 @@
-import type { TOrder } from '@utils-types';
+import type { ReactNode } from 'react';
 
+/** Свойства страницы истории заказов. */
 export type ProfileOrdersUIProps = {
-  orders: TOrder[];
+  profileMenu: ReactNode;
+  ordersList: ReactNode;
 };

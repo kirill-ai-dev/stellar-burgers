@@ -1,5 +1,6 @@
 import type { OrderStatusUIProps } from './type';
 
+/** Отображает текстовый статус заказа заданным цветом. */
 export const OrderStatusUI = ({
   textStyle,
   text,

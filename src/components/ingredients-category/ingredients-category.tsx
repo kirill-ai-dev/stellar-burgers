@@ -1,39 +1,27 @@
 import { IngredientsCategoryUI } from '@ui';
-import { useMemo } from 'react';
+
+import { BurgerIngredient } from '../burger-ingredient';
 
 import type { TIngredientsCategoryProps } from './type';
-import type { TConstructorState, TIngredient } from '@utils-types';
 
+/** Связывает карточки ингредиентов одной категории с подготовленными счётчиками. */
 export const IngredientsCategory = ({
   title,
   titleRef,
   ingredients,
+  ingredientsCounters,
   ref,
+  ...rest
 }: TIngredientsCategoryProps): React.JSX.Element => {
-  // TODO: Взять переменную из стора
-  const burgerConstructor: TConstructorState = {
-    bun: null,
-    ingredients: [],
-  };
-
-  const ingredientsCounters = useMemo(() => {
-    const { bun, ingredients } = burgerConstructor;
-    const counters: Record<string, number> = {};
-    ingredients.forEach((ingredient: TIngredient) => {
-      if (!counters[ingredient._id]) counters[ingredient._id] = 0;
-      counters[ingredient._id]++;
-    });
-    if (bun) counters[bun._id] = 2;
-    return counters;
-  }, [burgerConstructor]);
-
   return (
-    <IngredientsCategoryUI
-      title={title}
-      titleRef={titleRef}
-      ingredients={ingredients}
-      ingredientsCounters={ingredientsCounters}
-      ref={ref}
-    />
+    <IngredientsCategoryUI title={title} titleRef={titleRef} ref={ref} {...rest}>
+      {ingredients.map((ingredient) => (
+        <BurgerIngredient
+          ingredient={ingredient}
+          key={ingredient._id}
+          count={ingredientsCounters[ingredient._id]}
+        />
+      ))}
+    </IngredientsCategoryUI>
   );
 };

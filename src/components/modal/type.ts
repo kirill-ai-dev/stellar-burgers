@@ -1,7 +1,4 @@
-import type { ReactNode } from 'react';
+import type { TModalUIProps } from '@ui/modal/type';
 
-export type TModalProps = {
-  title: string;
-  onClose: () => void;
-  children?: ReactNode;
-};
+/** Свойства контейнера модального окна. */
+export type TModalProps = TModalUIProps;

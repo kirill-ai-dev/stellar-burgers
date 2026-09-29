@@ -1,50 +1,29 @@
+import { selectIngredients } from '@selectors';
 import { OrderCardUI } from '@ui';
 import { memo, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 
+import { useSelector } from '@services/store';
+import { createOrderCardInfo } from '@utils/order';
+
+import { OrderStatus } from '../order-status';
+
 import type { OrderCardProps } from './type';
-import type { TIngredient } from '@utils-types';
 
 const maxIngredients = 6;
 
+/** Дополняет заказ данными ингредиентов, стоимостью и параметрами фонового маршрута. */
 export const OrderCard = memo(function OrderCard({
   order,
 }: OrderCardProps): React.JSX.Element | null {
   const location = useLocation();
 
-  // TODO: Взять переменную из стора
-  const ingredients: TIngredient[] = [];
+  const ingredients = useSelector(selectIngredients);
 
   const orderInfo = useMemo(() => {
     if (!ingredients.length) return null;
 
-    const ingredientsInfo = order.ingredients.reduce(
-      (acc: TIngredient[], item: string) => {
-        const ingredient = ingredients.find((ing) => ing._id === item);
-        if (ingredient) return [...acc, ingredient];
-        return acc;
-      },
-      []
-    );
-
-    const total = ingredientsInfo.reduce((acc, item) => acc + item.price, 0);
-
-    const ingredientsToShow = ingredientsInfo.slice(0, maxIngredients);
-
-    const remains =
-      ingredientsInfo.length > maxIngredients
-        ? ingredientsInfo.length - maxIngredients
-        : 0;
-
-    const date = new Date(order.createdAt);
-    return {
-      ...order,
-      ingredientsInfo,
-      ingredientsToShow,
-      remains,
-      total,
-      date,
-    };
+    return createOrderCardInfo(order, ingredients, maxIngredients);
   }, [order, ingredients]);
 
   if (!orderInfo) return null;
@@ -54,6 +33,11 @@ export const OrderCard = memo(function OrderCard({
       orderInfo={orderInfo}
       maxIngredients={maxIngredients}
       locationState={{ background: location }}
+      status={
+        location.pathname.startsWith('/profile/orders') ? (
+          <OrderStatus status={orderInfo.status} />
+        ) : null
+      }
     />
   );
 });

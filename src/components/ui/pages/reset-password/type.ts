@@ -1,6 +1,7 @@
 import type { PageUIProps } from '@ui-pages/common-type';
 import type { Dispatch, SetStateAction } from 'react';
 
+/** Свойства формы установки нового пароля. */
 export type ResetPasswordUIProps = Omit<PageUIProps, 'email' | 'setEmail'> & {
   password: string;
   token: string;

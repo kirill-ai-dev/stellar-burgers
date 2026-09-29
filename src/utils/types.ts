@@ -1,7 +1,14 @@
+/** Допустимые категории ингредиентов. */
+export type TIngredientType = 'bun' | 'sauce' | 'main';
+
+/** Допустимые серверные статусы заказа. */
+export type TOrderStatus = 'created' | 'pending' | 'done' | 'canceled' | 'cancelled';
+
+/** Ингредиент, полученный из каталога API. */
 export type TIngredient = {
   _id: string;
   name: string;
-  type: string;
+  type: TIngredientType;
   proteins: number;
   fat: number;
   carbohydrates: number;
@@ -12,13 +19,15 @@ export type TIngredient = {
   image_mobile: string;
 };
 
+/** Ингредиент конструктора с локальным идентификатором экземпляра. */
 export type TConstructorIngredient = TIngredient & {
   id: string;
 };
 
+/** Заказ пользователя или публичной ленты. */
 export type TOrder = {
   _id: string;
-  status: string;
+  status: TOrderStatus;
   name: string;
   createdAt: string;
   updatedAt: string;
@@ -26,28 +35,27 @@ export type TOrder = {
   ingredients: string[];
 };
 
-export type TOrdersData = {
-  orders: TOrder[];
-  total: number;
-  totalToday: number;
-};
-
+/** Публичные данные профиля пользователя. */
 export type TUser = {
   email: string;
   name: string;
 };
 
-export type TTabMode = 'bun' | 'sauce' | 'main';
+/** Допустимые категории вкладок каталога ингредиентов. */
+export type TTabMode = TIngredientType;
 
+/** Состояние собираемого бургера. */
 export type TConstructorState = {
   bun: TConstructorIngredient | null;
   ingredients: TConstructorIngredient[];
 };
 
+/** Состояние публичной ленты заказов. */
 export type TFeedState = {
   orders: TOrder[];
   total: number;
   totalToday: number;
   isLoading: boolean;
-  error: unknown;
+  error: string | null;
+  currentRequestId: string | null;
 };
