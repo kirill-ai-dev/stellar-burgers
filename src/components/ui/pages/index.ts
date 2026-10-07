@@ -1,3 +1,4 @@
+export * from './auth-form';
 export * from './constructor-page';
 export * from './feed';
 export * from './forgot-password';

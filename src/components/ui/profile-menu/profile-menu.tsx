@@ -1,20 +1,24 @@
+import { clsx } from 'clsx';
 import { NavLink } from 'react-router-dom';
 
 import type { ProfileMenuUIProps } from './type';
 
 import styles from './profile-menu.module.css';
 
+/** Отображает навигацию личного кабинета и действие выхода. */
 export const ProfileMenuUI = ({
   pathname,
   handleLogout,
+  logoutError,
+  isLoading = false,
 }: ProfileMenuUIProps): React.JSX.Element => (
   <>
     <NavLink
       to={'/profile'}
       className={({ isActive }) =>
-        `text text_type_main-medium text_color_inactive pt-4 pb-4 ${
-          styles.link
-        } ${isActive ? styles.link_active : ''}`
+        clsx('text text_type_main-medium text_color_inactive pt-4 pb-4', styles.link, {
+          [styles.link_active]: isActive,
+        })
       }
       end
     >
@@ -23,23 +27,32 @@ export const ProfileMenuUI = ({
     <NavLink
       to={'/profile/orders'}
       className={({ isActive }) =>
-        `text text_type_main-medium text_color_inactive pt-4 pb-4 ${
-          styles.link
-        } ${isActive ? styles.link_active : ''}`
+        clsx('text text_type_main-medium text_color_inactive pt-4 pb-4', styles.link, {
+          [styles.link_active]: isActive,
+        })
       }
     >
       История заказов
     </NavLink>
     <button
-      className={`text text_type_main-medium text_color_inactive pt-4 pb-4 ${styles.button}`}
+      className={clsx(
+        'text text_type_main-medium text_color_inactive pt-4 pb-4',
+        styles.button
+      )}
       onClick={handleLogout}
+      disabled={isLoading}
     >
-      Выход
+      {isLoading ? 'Выходим...' : 'Выход'}
     </button>
     <p className="pt-20 text text_type_main-default text_color_inactive">
       {pathname === '/profile'
         ? 'В этом разделе вы можете изменить свои персональные данные'
         : 'В этом разделе вы можете просмотреть свою историю заказов'}
     </p>
+    {logoutError && (
+      <p className={clsx(styles.error, 'pt-5 text text_type_main-default')}>
+        {logoutError}
+      </p>
+    )}
   </>
 );

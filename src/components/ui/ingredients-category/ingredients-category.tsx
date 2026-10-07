@@ -1,14 +1,12 @@
-import { BurgerIngredient } from '@components';
-
 import type { TIngredientsCategoryUIProps } from './type';
 
 import styles from './ingredients-category.module.css';
 
+/** Отображает заголовок и карточки одной категории ингредиентов. */
 export const IngredientsCategoryUI = ({
   title,
   titleRef,
-  ingredients,
-  ingredientsCounters,
+  children,
   ref,
   ...rest
 }: TIngredientsCategoryUIProps): React.JSX.Element => (
@@ -17,13 +15,7 @@ export const IngredientsCategoryUI = ({
       {title}
     </h3>
     <ul className={styles.items} ref={ref} {...rest}>
-      {ingredients.map((ingredient) => (
-        <BurgerIngredient
-          ingredient={ingredient}
-          key={ingredient._id}
-          count={ingredientsCounters[ingredient._id]}
-        />
-      ))}
+      {children}
     </ul>
   </>
 );

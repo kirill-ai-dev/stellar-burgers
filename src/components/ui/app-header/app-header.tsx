@@ -4,33 +4,79 @@ import {
   ProfileIcon,
   Logo,
 } from '@krgaa/react-developer-burger-ui-components';
+import { clsx } from 'clsx';
+import { Link, NavLink } from 'react-router-dom';
 
 import type { TAppHeaderUIProps } from './type';
 
 import styles from './app-header.module.css';
 
-export const AppHeaderUI = ({ userName }: TAppHeaderUIProps): React.JSX.Element => (
+/** Отображает шапку приложения и подсвечивает активный раздел. */
+export const AppHeaderUI = ({
+  userName,
+  isConstructorActive = false,
+}: TAppHeaderUIProps): React.JSX.Element => (
   <header className={styles.header}>
-    <nav className={`${styles.menu} p-4`}>
+    <nav className={clsx(styles.menu, 'p-4')}>
       <div className={styles.menu_part_left}>
-        <>
-          <BurgerIcon type={'primary'} />
-          <p className="text text_type_main-default ml-2 mr-10">Конструктор</p>
-        </>
-        <>
-          <ListIcon type={'primary'} />
-          <p className="text text_type_main-default ml-2">Лента заказов</p>
-        </>
+        <HeaderLink
+          to="/"
+          icon={BurgerIcon}
+          text="Конструктор"
+          extraClass="mr-10"
+          end
+          isActiveOverride={isConstructorActive}
+        />
+        <HeaderLink to="/feed" icon={ListIcon} text="Лента заказов" />
       </div>
       <div className={styles.logo}>
-        <Logo className="" />
+        <Link to="/" aria-label="Stellar Burgers">
+          <Logo className="" />
+        </Link>
       </div>
       <div className={styles.link_position_last}>
-        <ProfileIcon type={'primary'} />
-        <p className="text text_type_main-default ml-2">
-          {userName ?? 'Личный кабинет'}
-        </p>
+        <HeaderLink
+          to="/profile"
+          icon={ProfileIcon}
+          text={userName ?? 'Личный кабинет'}
+        />
       </div>
     </nav>
   </header>
+);
+
+type THeaderLinkProps = {
+  to: string;
+  text: string;
+  icon: typeof BurgerIcon;
+  end?: boolean;
+  extraClass?: string;
+  isActiveOverride?: boolean;
+};
+
+/** Отображает одну ссылку шапки с согласованным состоянием иконки и текста. */
+const HeaderLink = ({
+  to,
+  text,
+  icon: Icon,
+  end = false,
+  extraClass = '',
+  isActiveOverride = false,
+}: THeaderLinkProps): React.JSX.Element => (
+  <NavLink
+    to={to}
+    end={end}
+    className={({ isActive }) =>
+      clsx(styles.link, extraClass, {
+        [styles.link_active]: isActive || isActiveOverride,
+      })
+    }
+  >
+    {({ isActive }) => (
+      <>
+        <Icon type={isActive || isActiveOverride ? 'primary' : 'secondary'} />
+        <p className="text text_type_main-default ml-2">{text}</p>
+      </>
+    )}
+  </NavLink>
 );

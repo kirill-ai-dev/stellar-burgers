@@ -1,6 +1,8 @@
-import type { TOrder } from '@utils-types';
+import type { ReactNode } from 'react';
 
+/** Свойства страницы публичной ленты. */
 export type FeedUIProps = {
-  orders: TOrder[];
+  ordersList: ReactNode;
+  feedInfo: ReactNode;
   handleGetFeeds: () => void;
 };
