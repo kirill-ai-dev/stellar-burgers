@@ -20,7 +20,7 @@ export const ModalUI = memo(function ModalUI({
 
   return (
     <>
-      <div className={styles.modal}>
+      <div className={styles.modal} data-testid="modal">
         <div className={styles.header}>
           <h3 className="text text_type_main-large">{title}</h3>
           {canClose && (
