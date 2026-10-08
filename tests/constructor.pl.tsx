@@ -8,7 +8,7 @@ const mainName = 'Мясо бессмертных моллюсков Protostomia
 const orderNumber = '4242';
 
 const getIngredientCard = (page: Page, name: string): Locator =>
-  page.locator('li').filter({ hasText: name });
+  page.getByTestId('ingredients-content').locator('li').filter({ hasText: name });
 
 test.describe('Страница конструктора бургера', () => {
   test.beforeEach(async ({ page }) => {
@@ -18,7 +18,7 @@ test.describe('Страница конструктора бургера', () => 
       url: '**/api/**',
     });
     await page.goto('/');
-    await expect(page.getByText(bunName, { exact: true })).toBeVisible();
+    await expect(getIngredientCard(page, bunName)).toBeVisible();
   });
 
   test('добавляет булку и начинку в конструктор', async ({ page }) => {
@@ -40,16 +40,23 @@ test.describe('Страница конструктора бургера', () => 
     const ingredientCard = getIngredientCard(page, mainName);
 
     await ingredientCard.getByRole('link').click();
-    await expect(page.getByRole('heading', { name: mainName })).toBeVisible();
-    await expect(page.getByText('300', { exact: true })).toBeVisible();
+    const ingredientModal = page.getByTestId('modal');
+    await expect(ingredientModal.getByRole('heading', { name: mainName })).toBeVisible();
+    await expect(ingredientModal.getByText('300', { exact: true })).toBeVisible();
 
-    await page.getByRole('button', { name: 'Закрыть' }).click();
-    await expect(page.getByRole('heading', { name: mainName })).toBeHidden();
+    await ingredientModal.getByRole('button', { name: 'Закрыть' }).click();
+    await expect(page.getByTestId('modal')).toHaveCount(0);
 
     await ingredientCard.getByRole('link').click();
-    await expect(page.getByRole('heading', { name: mainName })).toBeVisible();
-    await page.getByTestId('modal-overlay').click({ position: { x: 5, y: 5 } });
-    await expect(page.getByRole('heading', { name: mainName })).toBeHidden();
+    const reopenedIngredientModal = page.getByTestId('modal');
+    await expect(
+      reopenedIngredientModal.getByRole('heading', { name: mainName })
+    ).toBeVisible();
+    await page
+      .locator('#modals')
+      .getByTestId('modal-overlay')
+      .click({ position: { x: 5, y: 5 } });
+    await expect(page.getByTestId('modal')).toHaveCount(0);
   });
 
   test('создаёт заказ, показывает его номер и очищает конструктор', async ({ page }) => {
@@ -58,7 +65,7 @@ test.describe('Страница конструктора бургера', () => 
       document.cookie = 'accessToken=Bearer fake-access-token; path=/';
     });
     await page.reload();
-    await expect(page.getByText(bunName, { exact: true })).toBeVisible();
+    await expect(getIngredientCard(page, bunName)).toBeVisible();
 
     await getIngredientCard(page, bunName)
       .getByRole('button', { name: 'Добавить' })
@@ -68,12 +75,13 @@ test.describe('Страница конструктора бургера', () => 
       .click();
     await page.getByRole('button', { name: 'Оформить заказ' }).click();
 
-    await expect(page.getByTestId('order-number')).toHaveText(orderNumber);
+    const orderModal = page.getByTestId('modal');
+    await expect(orderModal.getByTestId('order-number')).toHaveText(orderNumber);
     await expect(page.getByTestId('constructor-bun-1')).toHaveCount(0);
     await expect(page.getByTestId('constructor-bun-2')).toHaveCount(0);
     await expect(page.getByTestId('constructor')).toContainText('Выберите начинку');
 
-    await page.getByRole('button', { name: 'Закрыть' }).click();
-    await expect(page.getByTestId('order-number')).toHaveCount(0);
+    await orderModal.getByRole('button', { name: 'Закрыть' }).click();
+    await expect(page.getByTestId('modal')).toHaveCount(0);
   });
 });

@@ -1,4 +1,4 @@
-import ingredientsReducer, { getIngredients } from '../ingredientsSlice';
+import ingredientsReducer, { getIngredients, initialState } from '../ingredientsSlice';
 
 import type { TIngredient } from '@utils-types';
 
@@ -18,45 +18,43 @@ const ingredients: TIngredient[] = [
   },
 ];
 
-describe('ingredientsSlice reducer', () => {
-  it('returns the initial state for an unknown action', () => {
-    expect(ingredientsReducer(undefined, { type: 'UNKNOWN' })).toEqual({
-      ingredients: [],
-      isLoading: false,
-      error: null,
-    });
+describe('редьюсер ingredientsSlice', () => {
+  it('возвращает начальное состояние для неизвестного экшена', () => {
+    expect(ingredientsReducer(undefined, { type: 'UNKNOWN' })).toEqual(initialState);
   });
 
-  it('sets loading state when ingredients request starts', () => {
-    expect(ingredientsReducer(undefined, getIngredients.pending('request-id'))).toEqual({
-      ingredients: [],
-      isLoading: true,
-      error: null,
-    });
-  });
-
-  it('stores ingredients after a successful request', () => {
+  it('включает загрузку при начале запроса ингредиентов', () => {
     expect(
-      ingredientsReducer(undefined, getIngredients.fulfilled(ingredients, 'request-id'))
+      ingredientsReducer(initialState, getIngredients.pending('request-id'))
     ).toEqual({
-      ingredients,
-      isLoading: false,
-      error: null,
+      ...initialState,
+      isLoading: true,
     });
   });
 
-  it('stores the request error after a failed request', () => {
+  it('сохраняет ингредиенты после успешного запроса', () => {
     expect(
       ingredientsReducer(
-        undefined,
+        initialState,
+        getIngredients.fulfilled(ingredients, 'request-id')
+      )
+    ).toEqual({
+      ...initialState,
+      ingredients,
+    });
+  });
+
+  it('сохраняет ошибку после неудачного запроса', () => {
+    expect(
+      ingredientsReducer(
+        initialState,
         getIngredients.rejected(
           new Error('Не удалось загрузить ингредиенты'),
           'request-id'
         )
       )
     ).toEqual({
-      ingredients: [],
-      isLoading: false,
+      ...initialState,
       error: 'Не удалось загрузить ингредиенты',
     });
   });

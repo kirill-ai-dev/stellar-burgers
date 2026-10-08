@@ -1,6 +1,7 @@
 import constructorReducer, {
   addIngredient,
   clearConstructor,
+  initialState,
   moveIngredient,
   removeIngredient,
 } from '../constructorSlice';
@@ -49,15 +50,12 @@ const main: TIngredient = {
   image_mobile: '/main-mobile.png',
 };
 
-describe('constructorSlice reducer', () => {
-  it('returns the initial state for an unknown action', () => {
-    expect(constructorReducer(undefined, { type: 'UNKNOWN' })).toEqual({
-      bun: null,
-      ingredients: [],
-    });
+describe('редьюсер constructorSlice', () => {
+  it('возвращает начальное состояние для неизвестного экшена', () => {
+    expect(constructorReducer(undefined, { type: 'UNKNOWN' })).toEqual(initialState);
   });
 
-  it('adds a bun and creates an instance id', () => {
+  it('добавляет булку и создаёт идентификатор экземпляра', () => {
     const state = constructorReducer(undefined, addIngredient(bun));
 
     expect(state.bun).toMatchObject(bun);
@@ -65,7 +63,7 @@ describe('constructorSlice reducer', () => {
     expect(state.ingredients).toEqual([]);
   });
 
-  it('replaces the selected bun', () => {
+  it('заменяет выбранную булку', () => {
     const firstState = constructorReducer(undefined, addIngredient(bun));
     const state = constructorReducer(
       firstState,
@@ -76,7 +74,7 @@ describe('constructorSlice reducer', () => {
     expect(state.ingredients).toEqual([]);
   });
 
-  it('adds non-bun ingredients in insertion order', () => {
+  it('добавляет начинки в порядке вставки', () => {
     const firstState = constructorReducer(undefined, addIngredient(sauce));
     const state = constructorReducer(firstState, addIngredient(main));
 
@@ -88,17 +86,16 @@ describe('constructorSlice reducer', () => {
     expect(state.ingredients.every((ingredient) => ingredient.id)).toBe(true);
   });
 
-  it('removes an ingredient by its instance id', () => {
+  it('удаляет начинку по идентификатору экземпляра', () => {
     const addedState = constructorReducer(undefined, addIngredient(sauce));
     const ingredientId = addedState.ingredients[0].id;
 
-    expect(constructorReducer(addedState, removeIngredient(ingredientId))).toEqual({
-      bun: null,
-      ingredients: [],
-    });
+    expect(constructorReducer(addedState, removeIngredient(ingredientId))).toEqual(
+      initialState
+    );
   });
 
-  it('moves an ingredient to another position', () => {
+  it('перемещает начинку на другую позицию', () => {
     let state = constructorReducer(undefined, addIngredient(sauce));
     state = constructorReducer(state, addIngredient(main));
     state = constructorReducer(state, addIngredient({ ...main, _id: 'second-main-id' }));
@@ -112,19 +109,16 @@ describe('constructorSlice reducer', () => {
     ]);
   });
 
-  it('ignores invalid move positions', () => {
+  it('игнорирует недопустимые позиции перемещения', () => {
     const state = constructorReducer(undefined, addIngredient(sauce));
 
     expect(constructorReducer(state, moveIngredient({ from: 0, to: 5 }))).toEqual(state);
   });
 
-  it('clears the complete constructor', () => {
+  it('очищает весь конструктор', () => {
     let state = constructorReducer(undefined, addIngredient(bun));
     state = constructorReducer(state, addIngredient(sauce));
 
-    expect(constructorReducer(state, clearConstructor())).toEqual({
-      bun: null,
-      ingredients: [],
-    });
+    expect(constructorReducer(state, clearConstructor())).toEqual(initialState);
   });
 });
